@@ -16,6 +16,49 @@ type AddToCartRequest struct {
 	Quantity  int `json:"quantity" binding:"required"`
 }
 
+// SearchProductsRequest โครงสร้างข้อมูลสำหรับการค้นหาสินค้า
+type SearchProductsRequest struct {
+	Keyword  string  `json:"keyword"`   // คำค้นหาจากรายละเอียดสินค้า
+	MinPrice float64 `json:"min_price"` // ราคาต่ำสุด
+	MaxPrice float64 `json:"max_price"` // ราคาสูงสุด
+}
+
+// SearchProducts ฟังก์ชันสำหรับค้นหาสินค้า
+func SearchProducts(c *gin.Context) {
+	var req SearchProductsRequest
+	// รับข้อมูลจาก request body
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request"})
+		return
+	}
+
+	// สร้าง query สำหรับค้นหาสินค้า
+	query := db.Model(&model.Product{}).Where("stock_quantity > 0")
+
+	// เพิ่มเงื่อนไขสำหรับคำค้นหาจากรายละเอียดสินค้า
+	if req.Keyword != "" {
+		query = query.Where("description LIKE ?", "%"+req.Keyword+"%")
+	}
+
+	// เพิ่มเงื่อนไขสำหรับช่วงราคา
+	if req.MinPrice > 0 {
+		query = query.Where("price >= ?", req.MinPrice)
+	}
+	if req.MaxPrice > 0 {
+		query = query.Where("price <= ?", req.MaxPrice)
+	}
+
+	// ดึงข้อมูลสินค้าจากฐานข้อมูล
+	var products []model.Product
+	if err := query.Find(&products).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching products", "error": err.Error()})
+		return
+	}
+
+	// ส่งผลลัพธ์การค้นหากลับไป
+	c.JSON(http.StatusOK, products)
+}
+
 // AddToCart ฟังก์ชันสำหรับเพิ่มสินค้าไปยังรถเข็น
 func AddToCart(c *gin.Context) {
 	var req AddToCartRequest
