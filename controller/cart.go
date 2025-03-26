@@ -4,6 +4,7 @@ import (
 	"go-grom/model"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -34,7 +35,6 @@ func AddToCart(c *gin.Context) {
 
 	// ตรวจสอบว่า Cart ของลูกค้ามีอยู่ในฐานข้อมูลหรือไม่
 	var cart model.Cart
-	// ใช้ชื่อ table เป็น cart แทน carts
 	if err := db.Where("customer_id = ?", customerID).First(&cart).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// ถ้าไม่พบ Cart ให้สร้างใหม่
@@ -79,6 +79,8 @@ func AddToCart(c *gin.Context) {
 		CartID:    cart.CartID,
 		ProductID: req.ProductID,
 		Quantity:  req.Quantity,
+		CreatedAt: time.Now(), // กำหนดเวลาปัจจุบันสำหรับ CreatedAt
+		UpdatedAt: time.Now(), // กำหนดเวลาปัจจุบันสำหรับ UpdatedAt
 	}
 	// เพิ่มสินค้าใหม่ในฐานข้อมูล
 	if err := db.Create(&newCartItem).Error; err != nil {
