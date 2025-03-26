@@ -26,6 +26,9 @@ func init() {
 
 	// Get DSN from config.yaml
 	dsn := viper.GetString("mysql.dsn")
+	if dsn == "" {
+		log.Fatalf("DSN not found in config.yaml")
+	}
 	fmt.Println("Connecting to MySQL with DSN:", dsn)
 
 	// Connect to database
@@ -51,11 +54,15 @@ func main() {
 	r := gin.Default()
 
 	// Start server with routes
-	controller.StartServer(r)
+	controller.StartServer(r) // Ensure this function is implemented in your controller
 
 	// Customer API routes
 	r.GET("/customers", controller.GetCustomers)
-
-	// Start server
-	r.Run(":8080")
+	r.POST("/auth/login", controller.Login)
+	r.PUT("/change-password/:email", controller.ChangePassword)
+	r.POST("/cart/:customer_id", controller.AddToCart)
+	// Start the server
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Error starting the server: %v", err)
+	}
 }
