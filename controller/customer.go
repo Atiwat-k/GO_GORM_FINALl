@@ -10,13 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-
-// SetDB sets the database connection for the controller
-func SetDB(database *gorm.DB) {
-	db = database
-}
-
 // GetCustomers retrieves all customers from the database
 func GetCustomers(c *gin.Context) {
 	if db == nil {

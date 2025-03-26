@@ -1,10 +1,19 @@
 package model
 
+import (
+	"time"
+)
+
+// Cart โครงสร้างข้อมูลของตาราง Cart
 type Cart struct {
-	CartID     int       `gorm:"primaryKey;autoIncrement" json:"cart_id"`
+	CartID     int       `json:"cart_id" gorm:"primaryKey;autoIncrement"`
 	CustomerID int       `json:"customer_id"`
 	CartName   string    `json:"cart_name"`
-	CreatedAt  string    `json:"created_at"`
-	UpdatedAt  string    `json:"updated_at"`
-	Customer   Customer `gorm:"foreignKey:CustomerID" json:"customer"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+// TableName กำหนดชื่อของตารางในฐานข้อมูล
+func (Cart) TableName() string {
+	return "cart"
 }
