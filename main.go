@@ -61,6 +61,8 @@ func main() {
 	r.POST("/auth/login", controller.Login)
 	r.PUT("/change-password/:email", controller.ChangePassword)
 	r.POST("/cart/:customer_id", controller.AddToCart)
+	r.GET("/cart-details/:customer_id", controller.GetCartDetails)
+
 	// Start the server
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Error starting the server: %v", err)
